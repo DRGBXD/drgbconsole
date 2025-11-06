@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>DRGB HACK CONSOLE v12 - ELPEPEXD2371</title>
+  <title>DRGB HACK CONSOLE v15 - ELPEPEXD2371</title>
   <style>
     * { margin:0; padding:0; box-sizing:border-box; }
     body, html { height:100%; overflow:hidden; background:#000; font-family:'Courier New',monospace; }
@@ -75,7 +75,7 @@ DRGB CLAN
 
 <div id="hack-console">
   <div id="console-header">
-    <div>DRGB HACK CONSOLE v12 | ELPEPEXD2371</div>
+    <div>DRGB HACK CONSOLE v15 | ELPEPEXD2371</div>
     <button onclick="closeConsole()" style="background:#f00; color:#fff; border:none; padding:4px 10px; cursor:pointer;">X</button>
   </div>
   <div id="terminal-output"></div>
@@ -103,6 +103,16 @@ for (let i = 0; i < 100; i++) {
   star.style.top = `${Math.random() * 100}%`;
   star.style.animationDelay = `${Math.random() * 2}s`;
   bg.appendChild(star);
+}
+
+// GENERADOR DE PATRÓN ALEATORIO DISTINTIVO
+function generarPatron() {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:,.<>?';
+  let patron = '';
+  for (let i = 0; i < 16; i++) {
+    patron += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return patron;
 }
 
 // CONSOLA
@@ -143,7 +153,7 @@ function escape(t) {
   return d.innerHTML;
 }
 
-// COMANDOS REALISTAS
+// COMANDOS CON PATRÓN ALEATORIO
 const cmds = {
   help: () => {
     log('Comandos disponibles:', '#0ff');
@@ -154,16 +164,19 @@ const cmds = {
     log('  bypass      → bypass anti-cheat');
     log('  dump        → dump memoria');
     log('  trace       → tracear jugador');
+    log('  auth        → verificar credenciales');
+    log('  exploit     → buscar vulnerabilidades');
     log('  clear       → limpiar');
     log('  exit        → salir');
   },
   scan: () => {
-    log('[*] Escaneando servidores Roblox...', '#0f8');
-    setTimeout(() => type('[*] Probing 104.18.0.0/16...\n[+] 12 servidores DRGB detectados\n[+] Puerto 1337 abierto en 3 nodos', 30), 800);
+    log('[*] Iniciando escaneo de red Roblox...', '#0f8');
+    setTimeout(() => type('[*] Probing 104.18.0.0/16...\n[+] 18 servidores DRGB detectados\n[+] Puerto 1337 abierto en 5 nodos', 30), 800);
   },
   decrypt: () => {
+    const patron = generarPatron();
     log('[*] Desencriptando hash SHA-256...', '#ff0');
-    setTimeout(() => type('[*] Iteración 1.337.420...\n[+] Hash crackeado: contraa23441\n[!] Credenciales de admin recuperadas', 35), 1000);
+    setTimeout(() => type(`[*] Iteración 1.337.420...\n[+] Hash crackeado: ${patron}\n[!] Credenciales de admin recuperadas`, 35), 1000);
   },
   inject: () => {
     log('[*] Preparando payload Lua...', '#0f8');
@@ -183,7 +196,16 @@ const cmds = {
   },
   trace: () => {
     log('[*] Traceando jugador objetivo...', '#0ff');
-    setTimeout(() => type('[+] UserID: 2371\n[+] IP: 190.27.***.***\n[+] Última conexión: 2025-11-06 10:39', 30), 800);
+    setTimeout(() => type('[+] UserID: 2371\n[+] IP: 190.27.***.***\n[+] Última conexión: 2025-11-06 11:26', 30), 800);
+  },
+  auth: () => {
+    const patron = generarPatron();
+    log('[*] Verificando credenciales...', '#0f0');
+    setTimeout(() => type(`[+] Usuario: ElpepexD2371\n[+] Contraseña: ${patron}\n[!] Autenticación exitosa (admin)`, 30), 600);
+  },
+  exploit: () => {
+    log('[*] Buscando vulnerabilidades...', '#ff0');
+    setTimeout(() => type('[+] CVE-2025-1337 encontrado\n[+] Exploit disponible: RCE en client-server\n[*] Preparando PoC...', 35), 1000);
   },
   clear: () => output.innerHTML = '',
   exit: () => closeConsole()
@@ -191,7 +213,7 @@ const cmds = {
 
 // INICIO
 setTimeout(() => {
-  type('DRGB HACK CONSOLE v12 - CONECTADO A ROBLOX CORE\n[*] Sistema inicializado.\n[*] Escribe "help" para comandos.', 40);
+  type('DRGB HACK CONSOLE v15 - CONECTADO A ROBLOX CORE\n[*] Sistema inicializado.\n[*] Escribe "help" para comandos.', 40);
 }, 500);
 
 // INPUT
@@ -217,4 +239,3 @@ function closeConsole() {
 
 </body>
 </html>
-
