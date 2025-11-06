@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DRGB HACK CONSOLE v12 - ELPEPEXD2371</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body, html { height:100%; overflow:hidden; background:#000; font-family:'Courier New',monospace; }
+    
+    #roblox-bg {
+      position:fixed; inset:0; background:radial-gradient(circle at center, #0a001f, #000);
+      z-index:1; overflow:hidden;
+    }
+    .neon-line {
+      position:absolute; width:4px; background:linear-gradient(to bottom, transparent, #00ffff, #8b00ff, transparent);
+      filter:blur(1px); animation:neonPulse 3s infinite;
+    }
+    @keyframes neonPulse { 0%,100%{opacity:0.7} 50%{opacity:1} }
+    .star {
+      position:absolute; width:2px; height:2px; background:#fff; border-radius:50%;
+      box-shadow:0 0 6px #fff; animation:twinkle 2s infinite;
+    }
+    @keyframes twinkle { 0%,100%{opacity:0.5} 50%{opacity:1} }
+
+    #dragon-neon {
+      position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+      font-size:80px; color:transparent; z-index:2;
+      text-shadow: 
+        0 0 10px #00ffff, 0 0 20px #00ffff, 0 0 30px #8b00ff, 0 0 40px #8b00ff;
+      animation:dragonGlow 4s infinite;
+    }
+    @keyframes dragonGlow { 0%,100%{text-shadow:0 0 10px #00ffff,0 0 20px #00ffff} 50%{text-shadow:0 0 30px #8b00ff,0 0 40px #8b00ff} }
+
+    #hack-console {
+      position:fixed; inset:0; z-index:999; display:none; flex-direction:column;
+      padding:20px; color:#0f8; backdrop-filter:blur(10px);
+    }
+    #console-header {
+      display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;
+      color:#0ff; font-weight:bold; text-shadow:0 0 8px #0ff;
+    }
+    #terminal-output {
+      flex:1; overflow-y:auto; font-size:14px; line-height:1.6; white-space:pre-wrap;
+      padding-right:10px; margin-bottom:10px;
+    }
+    #terminal-input-line {
+      display:flex; align-items:center;
+    }
+    #prompt { color:#0f0; margin-right:8px; }
+    #terminal-input {
+      background:transparent; border:none; color:#0f0; font-size:14px; flex:1; outline:none;
+    }
+    .btn-open {
+      position:fixed; bottom:20px; right:20px; z-index:1000;
+      background:#8b00ff; color:#fff; border:none; padding:12px 20px;
+      border-radius:50%; font-weight:bold; cursor:pointer;
+      box-shadow:0 0 20px #8b00ff; animation:btnPulse 2s infinite;
+    }
+    @keyframes btnPulse { 0%,100%{box-shadow:0 0 20px #8b00ff} 50%{box-shadow:0 0 30px #00ffff} }
+  </style>
+</head>
+<body>
+
+<div id="roblox-bg"></div>
+
+<div id="dragon-neon">
+  /\_/\<br>
+ ( o.o )<br>
+  > ^ <<br>
+DRGB CLAN
+</div>
+
+<button class="btn-open" onclick="openConsole()">HACK</button>
+
+<div id="hack-console">
+  <div id="console-header">
+    <div>DRGB HACK CONSOLE v12 | ELPEPEXD2371</div>
+    <button onclick="closeConsole()" style="background:#f00; color:#fff; border:none; padding:4px 10px; cursor:pointer;">X</button>
+  </div>
+  <div id="terminal-output"></div>
+  <div id="terminal-input-line">
+    <span id="prompt">drgb@roblox:~$</span>
+    <input type="text" id="terminal-input" autocomplete="off" placeholder="help..." />
+  </div>
+</div>
+
+<script>
+// FONDO
+const bg = document.getElementById('roblox-bg');
+for (let i = 0; i < 15; i++) {
+  const line = document.createElement('div');
+  line.className = 'neon-line';
+  line.style.left = `${Math.random() * 100}%`;
+  line.style.height = `${60 + Math.random() * 40}%`;
+  line.style.animationDelay = `${Math.random() * 2}s`;
+  bg.appendChild(line);
+}
+for (let i = 0; i < 100; i++) {
+  const star = document.createElement('div');
+  star.className = 'star';
+  star.style.left = `${Math.random() * 100}%`;
+  star.style.top = `${Math.random() * 100}%`;
+  star.style.animationDelay = `${Math.random() * 2}s`;
+  bg.appendChild(star);
+}
+
+// CONSOLA
+const output = document.getElementById('terminal-output');
+const input = document.getElementById('terminal-input');
+let typing = false;
+
+function type(text, speed = 30, cb) {
+  if (typing) return;
+  typing = true;
+  let i = 0;
+  output.innerHTML += '\n';
+  const int = setInterval(() => {
+    if (i < text.length) {
+      output.innerHTML += text[i] === '\n' ? '<br>' : escape(text[i]);
+      i++;
+      output.scrollTop = output.scrollHeight;
+    } else {
+      clearInterval(int);
+      typing = false;
+      if (cb) cb();
+    }
+  }, speed);
+}
+
+function log(text, color = '#0f0') {
+  const span = document.createElement('span');
+  span.style.color = color;
+  span.innerHTML = text.replace(/\n/g, '<br>');
+  output.appendChild(span);
+  output.innerHTML += '<br>';
+  output.scrollTop = output.scrollHeight;
+}
+
+function escape(t) {
+  const d = document.createElement('div');
+  d.textContent = t;
+  return d.innerHTML;
+}
+
+// COMANDOS REALISTAS
+const cmds = {
+  help: () => {
+    log('Comandos disponibles:', '#0ff');
+    log('  scan        → escanear red');
+    log('  decrypt     → desencriptar SHA-256');
+    log('  inject      → inyectar payload');
+    log('  spoof       → spoof HWID');
+    log('  bypass      → bypass anti-cheat');
+    log('  dump        → dump memoria');
+    log('  trace       → tracear jugador');
+    log('  clear       → limpiar');
+    log('  exit        → salir');
+  },
+  scan: () => {
+    log('[*] Escaneando servidores Roblox...', '#0f8');
+    setTimeout(() => type('[*] Probing 104.18.0.0/16...\n[+] 12 servidores DRGB detectados\n[+] Puerto 1337 abierto en 3 nodos', 30), 800);
+  },
+  decrypt: () => {
+    log('[*] Desencriptando hash SHA-256...', '#ff0');
+    setTimeout(() => type('[*] Iteración 1.337.420...\n[+] Hash crackeado: juan2010\n[!] Credenciales de admin recuperadas', 35), 1000);
+  },
+  inject: () => {
+    log('[*] Preparando payload Lua...', '#0f8');
+    setTimeout(() => type('[+] Payload compilado (124 KB)\n[+] Inyectado en process 0x7FF1\n[*] Esperando respuesta del servidor...', 40), 900);
+  },
+  spoof: () => {
+    log('[*] Generando nuevo HWID...', '#0ff');
+    setTimeout(() => type('[+] HWID anterior: 8F2A-1B9C-4D7E\n[+] Nuevo HWID: A1B2-C3D4-E5F6\n[!] Spoof completado', 30), 700);
+  },
+  bypass: () => {
+    log('[*] Analizando anti-cheat...', '#ff0');
+    setTimeout(() => type('[+] Signature: 0x9F1A2B3C\n[+] Patch aplicado en 0x00401234\n[!] Anti-cheat bypass exitoso', 35), 1100);
+  },
+  dump: () => {
+    log('[*] Dump de memoria en progreso...', '#0f8');
+    setTimeout(() => type('[+] 4.2 GB extraídos\n[+] Archivo: roblox_memory_dump.bin\n[*] Buscando strings...', 30), 1200);
+  },
+  trace: () => {
+    log('[*] Traceando jugador objetivo...', '#0ff');
+    setTimeout(() => type('[+] UserID: 2371\n[+] IP: 190.27.***.***\n[+] Última conexión: 2025-11-06 10:39', 30), 800);
+  },
+  clear: () => output.innerHTML = '',
+  exit: () => closeConsole()
+};
+
+// INICIO
+setTimeout(() => {
+  type('DRGB HACK CONSOLE v12 - CONECTADO A ROBLOX CORE\n[*] Sistema inicializado.\n[*] Escribe "help" para comandos.', 40);
+}, 500);
+
+// INPUT
+input.addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    const cmd = input.value.trim().toLowerCase();
+    log(`drgb@roblox:~$ ${cmd}`, '#0ff');
+    input.value = '';
+    if (cmds[cmd]) setTimeout(cmds[cmd], 300);
+    else if (cmd) setTimeout(() => log(`bash: ${cmd}: comando no encontrado`, '#f00'), 300);
+  }
+});
+
+// ABRIR/CERRAR
+function openConsole() {
+  document.getElementById('hack-console').style.display = 'flex';
+  input.focus();
+}
+function closeConsole() {
+  document.getElementById('hack-console').style.display = 'none';
+}
+</script>
+
+</body>
+</html>
