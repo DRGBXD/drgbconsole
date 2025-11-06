@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>DRGB HACK CONSOLE v15 - ELPEPEXD2371</title>
+  <title>DRGB HACK CONSOLE vLINE - ELPEPEXD2371</title>
   <style>
     * { margin:0; padding:0; box-sizing:border-box; }
     body, html { height:100%; overflow:hidden; background:#000; font-family:'Courier New',monospace; }
@@ -58,6 +58,10 @@
       box-shadow:0 0 20px #8b00ff; animation:btnPulse 2s infinite;
     }
     @keyframes btnPulse { 0%,100%{box-shadow:0 0 20px #8b00ff} 50%{box-shadow:0 0 30px #00ffff} }
+    .progress-bar { background:#222; height:8px; border-radius:4px; overflow:hidden; margin:5px 0; }
+    .progress-fill { height:100%; width:0; background:#0f0; transition:width 0.3s; }
+    .interactive { color:#ff0; cursor:pointer; }
+    .cmd-list { color:#0ff; font-weight:bold; line-height:1.8; }
   </style>
 </head>
 <body>
@@ -71,12 +75,12 @@
 DRGB CLAN
 </div>
 
-<button class="btn-open" onclick="openConsole()">HACK</button>
+<button class="btn-open" onclick="Console.open()">HACK</button>
 
 <div id="hack-console">
   <div id="console-header">
-    <div>DRGB HACK CONSOLE v15 | ELPEPEXD2371</div>
-    <button onclick="closeConsole()" style="background:#f00; color:#fff; border:none; padding:4px 10px; cursor:pointer;">X</button>
+    <div>DRGB HACK CONSOLE vLINE | ELPEPEXD2371</div>
+    <button onclick="Console.close()" style="background:#f00; color:#fff; border:none; padding:4px 10px; cursor:pointer;">X</button>
   </div>
   <div id="terminal-output"></div>
   <div id="terminal-input-line">
@@ -86,155 +90,232 @@ DRGB CLAN
 </div>
 
 <script>
-// FONDO
-const bg = document.getElementById('roblox-bg');
-for (let i = 0; i < 15; i++) {
-  const line = document.createElement('div');
-  line.className = 'neon-line';
-  line.style.left = `${Math.random() * 100}%`;
-  line.style.height = `${60 + Math.random() * 40}%`;
-  line.style.animationDelay = `${Math.random() * 2}s`;
-  bg.appendChild(line);
-}
-for (let i = 0; i < 100; i++) {
-  const star = document.createElement('div');
-  star.className = 'star';
-  star.style.left = `${Math.random() * 100}%`;
-  star.style.top = `${Math.random() * 100}%`;
-  star.style.animationDelay = `${Math.random() * 2}s`;
-  bg.appendChild(star);
-}
+// === SISTEMA EN LÍNEAS ===
+const Console = {
+  output: document.getElementById('terminal-output'),
+  input: document.getElementById('terminal-input'),
+  typing: false,
+  step: 0,
+  currentCmd: null,
 
-// GENERADOR DE PATRÓN ALEATORIO DISTINTIVO
-function generarPatron() {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:,.<>?';
-  let patron = '';
-  for (let i = 0; i < 16; i++) {
-    patron += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return patron;
-}
+  init() {
+    this.createBackground();
+    setTimeout(() => this.type('DRGB HACK CONSOLE vLINE - ONLINE\n[*] Escribe "help" para lista por líneas.', 40), 500);
+    this.input.addEventListener('keydown', e => { if (e.key === 'Enter') this.runCommand(); });
+    this.output.addEventListener('click', e => {
+      if (e.target.classList.contains('interactive')) {
+        const action = e.target.dataset.action;
+        if (action) this.interact(action);
+      }
+    });
+  },
 
-// CONSOLA
-const output = document.getElementById('terminal-output');
-const input = document.getElementById('terminal-input');
-let typing = false;
-
-function type(text, speed = 30, cb) {
-  if (typing) return;
-  typing = true;
-  let i = 0;
-  output.innerHTML += '\n';
-  const int = setInterval(() => {
-    if (i < text.length) {
-      output.innerHTML += text[i] === '\n' ? '<br>' : escape(text[i]);
-      i++;
-      output.scrollTop = output.scrollHeight;
-    } else {
-      clearInterval(int);
-      typing = false;
-      if (cb) cb();
+  createBackground() {
+    const bg = document.getElementById('roblox-bg');
+    for (let i = 0; i < 15; i++) {
+      const line = document.createElement('div'); line.className = 'neon-line';
+      line.style.left = `${Math.random() * 100}%`; line.style.height = `${60 + Math.random() * 40}%`;
+      line.style.animationDelay = `${Math.random() * 2}s`; bg.appendChild(line);
     }
-  }, speed);
-}
+    for (let i = 0; i < 100; i++) {
+      const star = document.createElement('div'); star.className = 'star';
+      star.style.left = `${Math.random() * 100}%`; star.style.top = `${Math.random() * 100}%`;
+      star.style.animationDelay = `${Math.random() * 2}s`; bg.appendChild(star);
+    }
+  },
 
-function log(text, color = '#0f0') {
-  const span = document.createElement('span');
-  span.style.color = color;
-  span.innerHTML = text.replace(/\n/g, '<br>');
-  output.appendChild(span);
-  output.innerHTML += '<br>';
-  output.scrollTop = output.scrollHeight;
-}
+  type(text, speed = 30, cb) {
+    if (this.typing) return;
+    this.typing = true;
+    let i = 0;
+    this.output.innerHTML += '\n';
+    const int = setInterval(() => {
+      if (i < text.length) {
+        this.output.innerHTML += text[i] === '\n' ? '<br>' : this.escape(text[i]);
+        i++;
+        this.scroll();
+      } else {
+        clearInterval(int);
+        this.typing = false;
+        if (cb) cb();
+      }
+    }, speed);
+  },
 
-function escape(t) {
-  const d = document.createElement('div');
-  d.textContent = t;
-  return d.innerHTML;
-}
+  log(text, color = '#0f0') {
+    const span = document.createElement('span');
+    span.style.color = color;
+    span.innerHTML = text.replace(/\n/g, '<br>');
+    this.output.appendChild(span);
+    this.output.innerHTML += '<br>';
+    this.scroll();
+  },
 
-// COMANDOS CON PATRÓN ALEATORIO
-const cmds = {
-  help: () => {
-    log('Comandos disponibles:', '#0ff');
-    log('  scan        → escanear red');
-    log('  decrypt     → desencriptar SHA-256');
-    log('  inject      → inyectar payload');
-    log('  spoof       → spoof HWID');
-    log('  bypass      → bypass anti-cheat');
-    log('  dump        → dump memoria');
-    log('  trace       → tracear jugador');
-    log('  auth        → verificar credenciales');
-    log('  exploit     → buscar vulnerabilidades');
-    log('  clear       → limpiar');
-    log('  exit        → salir');
+  escape(t) { const d = document.createElement('div'); d.textContent = t; return d.innerHTML; },
+
+  scroll() { this.output.scrollTop = this.output.scrollHeight; },
+
+  progress(duration = 3000) {
+    const bar = document.createElement('div'); bar.className = 'progress-bar';
+    const fill = document.createElement('div'); fill.className = 'progress-fill';
+    bar.appendChild(fill);
+    this.output.appendChild(bar);
+    this.scroll();
+    let width = 0;
+    const int = setInterval(() => {
+      width += 100 / (duration / 100);
+      fill.style.width = width + '%';
+      if (width >= 100) { clearInterval(int); bar.remove(); }
+    }, 100);
   },
-  scan: () => {
-    log('[*] Iniciando escaneo de red Roblox...', '#0f8');
-    setTimeout(() => type('[*] Probing 104.18.0.0/16...\n[+] 18 servidores DRGB detectados\n[+] Puerto 1337 abierto en 5 nodos', 30), 800);
+
+  interactive(text, action) {
+    const span = document.createElement('span');
+    span.className = 'interactive';
+    span.style.color = '#ff0';
+    span.textContent = text;
+    span.dataset.action = action;
+    this.output.appendChild(span);
+    this.scroll();
   },
-  decrypt: () => {
-    const patron = generarPatron();
-    log('[*] Desencriptando hash SHA-256...', '#ff0');
-    setTimeout(() => type(`[*] Iteración 1.337.420...\n[+] Hash crackeado: ${patron}\n[!] Credenciales de admin recuperadas`, 35), 1000);
+
+  open() { document.getElementById('hack-console').style.display = 'flex'; this.input.focus(); },
+  close() { document.getElementById('hack-console').style.display = 'none'; },
+
+  runCommand() {
+    const cmd = this.input.value.trim().toLowerCase();
+    this.log(`drgb@roblox:~$ ${cmd}`, '#0ff');
+    this.input.value = '';
+    this.step = 0;
+    this.currentCmd = cmd;
+
+    if (cmd === 'elpepe') {
+      this.log('[!] ELPEPE MODE: FULL CONTROL', '#8b00ff');
+      return;
+    }
+
+    if (this.cmds[cmd]) {
+      this.cmds[cmd].bind(this)();
+    } else if (cmd) {
+      setTimeout(() => this.log(`bash: ${cmd}: comando no encontrado`, '#f00'), 300);
+    }
   },
-  inject: () => {
-    log('[*] Preparando payload Lua...', '#0f8');
-    setTimeout(() => type('[+] Payload compilado (124 KB)\n[+] Inyectado en process 0x7FF1\n[*] Esperando respuesta del servidor...', 40), 900);
+
+  interact(action) {
+    if (!this.currentCmd) return;
+    const cmdFunc = this.cmds[this.currentCmd];
+    if (cmdFunc && cmdFunc.interact) {
+      cmdFunc.interact.call(this, action);
+    }
   },
-  spoof: () => {
-    log('[*] Generando nuevo HWID...', '#0ff');
-    setTimeout(() => type('[+] HWID anterior: 8F2A-1B9C-4D7E\n[+] Nuevo HWID: A1B2-C3D4-E5F6\n[!] Spoof completado', 30), 700);
+
+  randomPattern() {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:,.<>?';
+    let p = '';
+    for (let i = 0; i < 16; i++) p += chars.charAt(Math.floor(Math.random() * chars.length));
+    return p;
   },
-  bypass: () => {
-    log('[*] Analizando anti-cheat...', '#ff0');
-    setTimeout(() => type('[+] Signature: 0x9F1A2B3C\n[+] Patch aplicado en 0x00401234\n[!] Anti-cheat bypass exitoso', 35), 1100);
-  },
-  dump: () => {
-    log('[*] Dump de memoria en progreso...', '#0f8');
-    setTimeout(() => type('[+] 4.2 GB extraídos\n[+] Archivo: roblox_memory_dump.bin\n[*] Buscando strings...', 30), 1200);
-  },
-  trace: () => {
-    log('[*] Traceando jugador objetivo...', '#0ff');
-    setTimeout(() => type('[+] UserID: 2371\n[+] IP: 190.27.***.***\n[+] Última conexión: 2025-11-06 11:26', 30), 800);
-  },
-  auth: () => {
-    const patron = generarPatron();
-    log('[*] Verificando credenciales...', '#0f0');
-    setTimeout(() => type(`[+] Usuario: ElpepexD2371\n[+] Contraseña: ${patron}\n[!] Autenticación exitosa (admin)`, 30), 600);
-  },
-  exploit: () => {
-    log('[*] Buscando vulnerabilidades...', '#ff0');
-    setTimeout(() => type('[+] CVE-2025-1337 encontrado\n[+] Exploit disponible: RCE en client-server\n[*] Preparando PoC...', 35), 1000);
-  },
-  clear: () => output.innerHTML = '',
-  exit: () => closeConsole()
+
+  // === HELP: CADA COMANDO EN SU PROPIA LÍNEA ===
+  cmds: {
+    help: function() {
+      this.log('COMANDOS DISPONIBLES (POR LÍNEAS):', '#0ff');
+      const cmds = [
+        'aslr', 'auth', 'aux', 'bufferoverflow', 'bypass', 'cfrop', 'clear', 'curl', 'decompile', 'decrypt',
+        'dep', 'dump', 'exit', 'exploit', 'formatstring', 'gdt', 'heapgroom', 'heapoverflow', 'hydra', 'idt',
+        'inject', 'integeroverflow', 'iommu', 'john', 'jit', 'kernelpool', 'metasploit', 'netstat', 'nmap', 'nx',
+        'pagetable', 'polymorph', 'ps', 'racecondition', 'rop', 'srop', 'scan', 'shadowmap', 'spoof', 'sqlmap',
+        'ssh', 'stackoverflow', 'stackpivot', 'syscallhook', 'tlb', 'trace', 'typeconfusion', 'useafterfree', 'wget'
+      ];
+      cmds.forEach(c => this.log(`<span class="cmd-list">${c}</span>`));
+      this.log('→ 50 comandos avanzados.', '#0f8');
+      this.log('→ Haz clic en texto amarillo para interactuar.', '#ff0');
+    },
+
+    // === COMANDOS (MANTENIDOS) ===
+    auth: function() { const p = this.randomPattern(); this.log('[*] Autenticando kernel...'); this.progress(); setTimeout(() => this.type(`[+] UID: 0\n[+] Cred: ${p}`, 30), 2000); },
+    aux: function() { this.log('[*] Load average: 0.8 1.2 1.5'); },
+    bypass: function() { this.log('[*] Bypassing NX/DEP...'); this.progress(); setTimeout(() => this.type('[+] ROP chain construido', 35), 3000); },
+    clear: function() { this.output.innerHTML = ''; },
+    curl: function() { this.log('[*] curl -H "X-Exploit: true"...'); this.progress(); setTimeout(() => this.type('[+] 200 OK - Shellcode recibido', 30), 2400); },
+    decrypt: function() { const p = this.randomPattern(); this.log('[*] Desencriptando AES-256...'); this.progress(); setTimeout(() => this.type(`[+] Key: ${p}`, 35), 3000); },
+    dump: function() { this.log('[*] Dumping heap...'); this.progress(); setTimeout(() => this.type('[+] 4.2 GB → heap.bin', 30), 3500); },
+    exit: function() { this.close(); },
+    exploit: function() { this.log('[*] Buscando CVE...'); this.progress(); setTimeout(() => this.type('[+] CVE-2025-1337: RCE en LuaVM', 35), 3200); },
+    hydra: function() { this.log('[*] Hydra - brute SSH...'); this.progress(); setTimeout(() => this.type('[+] root:toor', 30), 2800); },
+    inject: function() { this.log('[*] Inyectando shellcode...'); this.progress(); setTimeout(() => this.type('[+] EIP sobrescrito', 40), 2800); },
+    john: function() { this.log('[*] John - crack hash...'); this.progress(); setTimeout(() => this.type('[+] P@ssw0rd123', 30), 4000); },
+    metasploit: function() { this.log('[*] msfconsole...'); this.progress(); setTimeout(() => this.type('[+] use exploit/multi/handler', 30), 3000); },
+    netstat: function() { this.log('[*] netstat -an'); setTimeout(() => this.type('tcp 127.0.0.1:1337 ESTABLISHED', 30), 800); },
+    nmap: function() { this.log('[*] nmap -sS -O...'); this.progress(); setTimeout(() => this.type('[+] OS: Windows 10\n[+] Port 3389 open', 30), 3200); },
+    ps: function() { this.log('[*] ps aux'); setTimeout(() => this.type('  1337 roblox.exe\n  2371 injector.dll', 30), 600); },
+    scan: function() { this.log('[*] Scanning LuaVM...'); this.progress(); setTimeout(() => this.type('[+] 18 hooks detectados', 30), 2500); },
+    spoof: function() { this.log('[*] Spoofing MAC...'); this.progress(); setTimeout(() => this.type('[+] New MAC: DE:AD:BE:EF:23:71', 30), 2200); },
+    sqlmap: function() { this.log('[*] sqlmap -u http://game/login...'); this.progress(); setTimeout(() => this.type('[+] DBMS: MySQL', 30), 3500); },
+    ssh: function() { this.log('[*] ssh root@192.168.1.100'); this.progress(); setTimeout(() => this.type('[+] Connected', 30), 2800); },
+    trace: function() { this.log('[*] Tracing packet...'); this.progress(); setTimeout(() => this.type('[+] TTL: 64\n[+] Path: 3 hops', 30), 2400); },
+    wget: function() { this.log('[*] wget -O shell.exe...'); this.progress(); setTimeout(() => this.type('[+] 100% [==========]', 30), 2600); },
+
+    // === 30 COMANDOS INTERACTIVOS (MANTENIDOS) ===
+    decompile: {
+      exec: function() { this.log('[*] Decompilando bytecode Lua...'); this.progress(); setTimeout(() => { this.type('[+] 124 funciones encontradas\n'); this.interactive('[CLIC AQUÍ para ver main()]', 'main'); this.interactive('[CLIC AQUÍ para ver anti-cheat]', 'anticheat'); }, 3000); },
+      interact: function(action) { if (action === 'main') { this.log('[MAIN] function onUpdate()'); this.type('  if player.health < 0 then\n    respawn()\n  end', 20); } else if (action === 'anticheat') { this.log('[ANTICHEAT] local hash = md5(getfenv())'); this.interactive('[CLIC para inyectar bypass]', 'bypass_ac'); } }
+    },
+    obfuscate: {
+      exec: function() { this.log('[*] Ofuscando shellcode...'); this.progress(4000); setTimeout(() => { this.type('[+] Original: 48 31 C0...\n[+] Ofuscado: xor eax,eax → mov r8,r8', 25); this.interactive('[CLIC para ver encoder]', 'encoder'); }, 4000); },
+      interact: function(action) { if (action === 'encoder') this.type('encoder = { xor = function(a,b) return bit32.bxor(a,b) end }', 15); }
+    },
+    polymorph: {
+      exec: function() { this.log('[*] Generando variante polimórfica...'); this.progress(5000); setTimeout(() => { this.type('[+] Mutación 1/5: register shuffle\n'); this.interactive('[CLIC para siguiente mutación]', 'next'); this.step = 1; }, 5000); },
+      interact: function(action) { if (action === 'next' && this.step < 5) { this.step++; this.type(`[+] Mutación ${this.step}/5: junk code insert`, 20); if (this.step === 5) this.log('[!] Polimorfismo completo'); } }
+    },
+    jit: {
+      exec: function() { this.log('[*] Forzando JIT compilation...'); this.progress(); setTimeout(() => { this.type('[+] Hot loop detectado en render()\n'); this.interactive('[CLIC para ver trace IR]', 'ir'); }, 3000); },
+      interact: function(action) { if (action === 'ir') this.type('IR: LOOP\n  0: load\n  1: add\n  2: store', 15); }
+    },
+    rop: {
+      exec: function() { this.log('[*] Construyendo ROP chain...'); this.progress(); setTimeout(() => { this.type('[+] Gadgets encontrados: 42\n'); this.interactive('[CLIC para ver pop rdi; ret]', 'poprdi'); }, 2500); },
+      interact: function(action) { if (action === 'poprdi') this.type('0x40123: pop rdi ; ret', 20); }
+    },
+    gadget: {
+      exec: function() { this.log('[*] Buscando gadgets en libc...'); this.progress(3500); setTimeout(() => { this.type('[+] 128 gadgets útiles\n'); this.interactive('[CLIC para filtrar syscall]', 'syscall'); }, 3500); },
+      interact: function(action) { if (action === 'syscall') this.type('0x7fff: syscall ; ret', 20); }
+    },
+    heapgroom: {
+      exec: function() { this.log('[*] Grooming heap layout...'); this.progress(4000); setTimeout(() => { this.type('[+] Chunk 0x1337 → UAF target\n'); this.interactive('[CLIC para trigger UAF]', 'uaf'); }, 4000); },
+      interact: function(action) { if (action === 'uaf') this.log('[!] Use-after-free explotado'); }
+    },
+    stackpivot: function() { this.log('[*] Pivot stack a 0x7fffffffde80...'); this.progress(); setTimeout(() => this.type('[+] RSP sobrescrito', 30), 2000); },
+    aslr: function() { this.log('[*] Brute-forcing ASLR...'); this.progress(6000); setTimeout(() => this.type('[+] Base: 0x7f8a1b2c0000', 30), 6000); },
+    dep: function() { this.log('[*] Bypassing DEP con VirtualProtect...'); this.progress(); setTimeout(() => this.type('[+] RWX region: 0x1337000', 30), 3000); },
+    nx: function() { this.log('[*] NX disabled via mprotect...'); this.progress(); setTimeout(() => this.type('[+] Execute permission granted', 30), 2500); },
+    srop: function() { this.log('[*] Construyendo Sigreturn ROP...'); this.progress(); setTimeout(() => this.type('[+] 15 registros controlados', 30), 3000); },
+    cfrop: function() { this.log('[*] Control Flow ROP...'); this.progress(); setTimeout(() => this.type('[+] EIP → shellcode', 30), 2800); },
+    brop: function() { this.log('[*] Blind ROP...'); this.progress(7000); setTimeout(() => this.type('[+] puts@plt: 0x401000', 30), 7000); },
+    formatstring: {
+      exec: function() { this.log('[*] Format string bug en printf...'); this.progress(); setTimeout(() => { this.type('[+] %7$n → write GOT', 30); this.interactive('[CLIC para leak]', 'leak'); }, 3000); },
+      interact: function(action) { if (action === 'leak') this.type('[+] libc base: 0x7f8a1b2c0000', 20); }
+    },
+    useafterfree: function() { this.log('[*] Triggering UAF en free()...'); this.progress(); setTimeout(() => this.type('[+] vtable sobrescrito', 30), 2500); },
+    racecondition: function() { this.log('[*] Explotando race en mutex...'); this.progress(); setTimeout(() => this.type('[+] TOCTOU evitado', 30), 3000); },
+    typeconfusion: function() { this.log('[*] Type confusion en Lua table...'); this.progress(); setTimeout(() => this.type('[+] Object → function', 30), 2800); },
+    integeroverflow: function() { this.log('[*] Integer overflow en malloc...'); this.progress(); setTimeout(() => this.type('[+] size_t wrap → heap overflow', 30), 2500); },
+    bufferoverflow: function() { this.log('[*] Buffer overflow en strcpy...'); this.progress(); setTimeout(() => this.type('[+] RIP controlado', 30), 2000); },
+    heapoverflow: function() { this.log('[*] Heap overflow en chunk...'); this.progress(); setTimeout(() => this.type('[+] next chunk corrupted', 30), 3000); },
+    stackoverflow: function() { this.log('[*] Stack overflow recursivo...'); this.progress(); setTimeout(() => this.type('[+] Stack canary bypassed', 30), 2500); },
+    kernelpool: function() { this.log('[*] Kernel pool spraying...'); this.progress(); setTimeout(() => this.type('[+] IOCTL trigger', 30), 3000); },
+    iommu: function() { this.log('[*] IOMMU page table attack...'); this.progress(); setTimeout(() => this.type('[+] DMA overwrite', 30), 3500); },
+    pagetable: function() { this.log('[*] Page table manipulation...'); this.progress(); setTimeout(() => this.type('[+] PTE remap → kernel exec', 30), 4000); },
+    shadowmap: function() { this.log('[*] Shadow map attack...'); this.progress(); setTimeout(() => this.type('[+] Credential leak', 30), 3000); },
+    tlb: function() { this.log('[*] TLB shootdown race...'); this.progress(); setTimeout(() => this.type('[+] Cache poisoning', 30), 2500); },
+    syscallhook: function() { this.log('[*] Hooking sys_call_table...'); this.progress(); setTimeout(() => this.type('[+] sys_execve → shell', 30), 3000); },
+    idt: function() { this.log('[*] IDT hook en int 0x80...'); this.progress(); setTimeout(() => this.type('[+] Interrupt redirigido', 30), 2800); },
+    gdt: function() { this.log('[*] GDT privilege escalation...'); this.progress(); setTimeout(() => this.type('[+] Ring 0 alcanzado', 30), 3200); }
+  }
 };
 
-// INICIO
-setTimeout(() => {
-  type('DRGB HACK CONSOLE v15 - CONECTADO A ROBLOX CORE\n[*] Sistema inicializado.\n[*] Escribe "help" para comandos.', 40);
-}, 500);
-
-// INPUT
-input.addEventListener('keydown', e => {
-  if (e.key === 'Enter') {
-    const cmd = input.value.trim().toLowerCase();
-    log(`drgb@roblox:~$ ${cmd}`, '#0ff');
-    input.value = '';
-    if (cmds[cmd]) setTimeout(cmds[cmd], 300);
-    else if (cmd) setTimeout(() => log(`bash: ${cmd}: comando no encontrado`, '#f00'), 300);
-  }
-});
-
-// ABRIR/CERRAR
-function openConsole() {
-  document.getElementById('hack-console').style.display = 'flex';
-  input.focus();
-}
-function closeConsole() {
-  document.getElementById('hack-console').style.display = 'none';
-}
+// INIT
+Console.init();
 </script>
 
 </body>
